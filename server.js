@@ -1,6 +1,6 @@
 // Package imports
 const express = require('express');
-const expressGraphQL = require('express-graphql');
+const { graphqlHTTP } = require('express-graphql');
 const {
   GraphQLSchema,
   GraphQLObjectType,
@@ -24,7 +24,7 @@ const schema = new GraphQLSchema({
 })
 
 // Bringing in graphql as middleware - this is where the magic happens
-app.use('/graphql', expressGraphQL({
+app.use('/graphql', graphqlHTTP({
   schema: schema,
   graphiql: true  // User interface to access GraphQL (like Postman)
 }))
