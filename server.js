@@ -4,7 +4,8 @@ const { graphqlHTTP } = require('express-graphql');
 const {
   GraphQLSchema,
   GraphQLObjectType,
-  GraphQLString
+  GraphQLString,
+  GraphQLList
 } = require('graphql');
 
 // Express app creation
@@ -27,6 +28,18 @@ const books = [
 	{ id: 7, name: 'The Way of Shadows', authorId: 3 },
 	{ id: 8, name: 'Beyond the Shadows', authorId: 3 }
 ]
+
+const RootQueryType = new GraphQLObjectType({
+  name: 'Query',
+  description: 'Root Query',
+  fields: () => ({
+    books: {
+      type: new GraphQLList(BookType),
+      description: 'List of all books',
+      resolve: () => books
+    }
+  })
+})
 
 // GraphQL schema
 const schema = new GraphQLSchema({
