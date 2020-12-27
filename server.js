@@ -55,15 +55,7 @@ const RootQueryType = new GraphQLObjectType({
 
 // GraphQL schema
 const schema = new GraphQLSchema({
-  query: new GraphQLObjectType({
-    name: 'HelloWorld',
-    fields: () => ({
-      message: {
-        type: GraphQLString,
-        resolve: () => 'Hello World'
-      }
-    })
-  })
+  query: RootQueryType
 })
 
 // Bringing in graphql as middleware - this is where the magic happens
