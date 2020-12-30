@@ -31,6 +31,8 @@ const books = [
 	{ id: 8, name: 'Beyond the Shadows', authorId: 3 }
 ]
 
+// Type definitions
+
 const BookType = new GraphQLObjectType({
   name: 'Book',
   description: 'This represents a book written by an author',
@@ -52,7 +54,13 @@ const AuthorType = new GraphQLObjectType({
   description: 'This represents an author of a book',
   fields: () => ({
     id: { type: GraphQLNonNull(GraphQLInt) },
-    name: { type: GraphQLNonNull(GraphQLString) }
+    name: { type: GraphQLNonNull(GraphQLString) },
+    books: {
+      type: new GraphQLList(BookType),
+      resolve: (author) => {
+        return books.filter(book => book.authorId == author.id)
+      }
+    }
   })
 })
 
@@ -60,10 +68,26 @@ const RootQueryType = new GraphQLObjectType({
   name: 'Query',
   description: 'Root Query',
   fields: () => ({
+    book: {
+      type: BookType,
+      description: 'A single book',
+      args: {
+        id: { type: GraphQLInt }
+      },
+      resolve: (parent, args) => books.find(book => book.id === args.id)
+    },
     books: {
       type: new GraphQLList(BookType),
       description: 'List of all books',
       resolve: () => books
+    },
+    author: {
+      type: AuthorType,
+      description: 'A single author',
+      args: {
+        id: { type: GraphQLInt }
+      },
+      resolve: (parent, args) => authors.find(author => author.id === args.id)
     },
     authors: {
       type: new GraphQLList(AuthorType),
@@ -73,9 +97,49 @@ const RootQueryType = new GraphQLObjectType({
   })
 })
 
+const RootMutationType = new GraphQLObjectType({
+  name: 'Mutation',
+  description: 'Root mutation',
+  fields: () => ({
+    addBook: {
+      type: BookType,
+      description: 'Add a book',
+      args: {
+        name: { type: GraphQLNonNull(GraphQLString) },
+        authorId: { type: GraphQLNonNull(GraphQLInt) },
+      },
+      resolve: (parent, args) => {
+        const book = {
+          id: books.length + 1,
+          name: args.name,
+          authorId: args.authorId
+        }
+        books.push(book)
+        return book
+      }
+    },
+    addAuthor: {
+      type: AuthorType,
+      description: 'Add an author',
+      args: {
+        name: { type: GraphQLNonNull(GraphQLString) }
+      },
+      resolve: (parent, args) => {
+        const author = {
+          id: authors.length + 1,
+          name: args.name
+        }
+        authors.push(author)
+        return author
+      }
+    }
+  })
+})
+
 // GraphQL schema
 const schema = new GraphQLSchema({
-  query: RootQueryType
+  query: RootQueryType,
+  mutation: RootMutationType
 })
 
 // Bringing in graphql as middleware - this is where the magic happens
